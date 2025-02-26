@@ -83,7 +83,6 @@ const products = [
   { id: 50, name: "Dried Pear", price: 599, category: "Dried Fruits", image: pic2 },
 ];
 
-
 const ProductCard = memo(
   ({ product, quantity, onIncrement, onDecrement, onAddToCart }) => {
     return (
@@ -143,11 +142,9 @@ const Product = () => {
   const toast = useToast();
 
   useEffect(() => {
-    
     const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
     setCart(storedCart);
 
-    
     const initialQuantities = {};
     products.forEach((product) => {
       initialQuantities[product.id] = 0;
@@ -180,7 +177,7 @@ const Product = () => {
           status: "warning",
           duration: 2000,
           isClosable: true,
-          position: 'top-right'
+          position: "top-right",
         });
         return;
       }
@@ -200,6 +197,8 @@ const Product = () => {
           newCart = [...prevCart, { ...product, quantity: quantityToAdd }];
         }
         localStorage.setItem("cart", JSON.stringify(newCart));
+        // Dispatch a custom event so Header can update its count
+        window.dispatchEvent(new Event("cartUpdated"));
         return newCart;
       });
 
@@ -209,9 +208,8 @@ const Product = () => {
         status: "success",
         duration: 2000,
         isClosable: true,
-        position: 'top-right'
+        position: "top-right",
       });
-
 
       setQuantities((prev) => ({ ...prev, [product.id]: 0 }));
     },
@@ -223,6 +221,8 @@ const Product = () => {
       setCart((prevCart) => {
         const newCart = prevCart.filter((item) => item.id !== id);
         localStorage.setItem("cart", JSON.stringify(newCart));
+        // Dispatch event after removal as well
+        window.dispatchEvent(new Event("cartUpdated"));
         return newCart;
       });
       toast({
@@ -236,7 +236,6 @@ const Product = () => {
     [toast]
   );
 
-  
   const filteredProducts = useMemo(() => {
     return products
       .filter((product) =>
@@ -253,39 +252,13 @@ const Product = () => {
   }, [search, filter, sort]);
 
   return (
-    <Box maxW="100vw" mx="auto" py={10} px={{ base: 4, md: 8, lg: 24 }} bg="white">
-      {/* Cart Section */}
-      <Box mb={6} p={4} borderWidth="1px" borderRadius="lg" boxShadow="md">
-        <Text fontSize="2xl" fontWeight="bold" mb={4}>
-          Shopping Cart
-        </Text>
-        {cart.length === 0 ? (
-          <Text>Your cart is empty.</Text>
-        ) : (
-          cart.map((item) => (
-            <HStack
-              key={item.id}
-              justifyContent="space-between"
-              p={2}
-              borderWidth="1px"
-              borderRadius="md"
-              mb={2}
-            >
-              <Text>
-                {item.name} (Qty: {item.quantity}) – ₹{item.price * item.quantity}
-              </Text>
-              <Button
-                size="sm"
-                colorScheme="red"
-                onClick={() => removeFromCart(item.id)}
-              >
-                Remove
-              </Button>
-            </HStack>
-          ))
-        )}
-      </Box>
-
+    <Box
+      maxW="100vw"
+      mx="auto"
+      py={10}
+      px={{ base: 4, md: 8, lg: 24 }}
+      bg="white"
+    >
       {/* Search and Filters */}
       <HStack spacing={4} mb={6} justify="center" flexWrap="wrap">
         <Input
@@ -293,14 +266,14 @@ const Product = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           maxW="300px"
-           bg="white"
+          bg="white"
           color="black"
         />
         <Select
           placeholder="Filter by Category"
           onChange={(e) => setFilter(e.target.value)}
           maxW="200px"
-           bg="white"
+          bg="white"
           color="black"
           sx={{
             "& option": {

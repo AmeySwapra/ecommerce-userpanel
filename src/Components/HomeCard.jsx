@@ -6,14 +6,12 @@ import {
   Heading,
   Text,
   Container,
-  Button,
 } from "@chakra-ui/react";
 import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
 import Slider from "react-slick";
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import slide1 from '../assets/images/dryfruits.jpg';
-import slide2 from '../assets/images/dry.jpg'
+import slide2 from '../assets/images/dry.jpg';
 import slide3 from '../assets/images/dryfruits.jpg';
 
 const settings = {
@@ -31,7 +29,6 @@ const settings = {
 export default function HomeCard() {
   const [slider, setSlider] = useState(null);
   const [animationKey, setAnimationKey] = useState(Math.random());
-
   const intervalRef = useRef(null);
 
   const cards = [
@@ -54,7 +51,6 @@ export default function HomeCard() {
       image: slide2,
     },
   ];
-  
 
   const letterAnimation = {
     hidden: { x: 500, opacity: 0 },
@@ -65,39 +61,20 @@ export default function HomeCard() {
     }),
   };
 
-  const buttonAnimation = {
-    hidden: { x: 200, opacity: 0 },
-    visible: {
-      x: 0,
-      opacity: 1,
-      transition: { delay: 0.5, type: "spring", stiffness: 50 },
-    },
-  };
-
-  const startAutoSlide = () => {
+  React.useEffect(() => {
     if (slider) {
       intervalRef.current = setInterval(() => {
         slider.slickNext();
         setAnimationKey(Math.random());
       }, 5000);
     }
-  };
-
-  const clearAutoSlide = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-  };
-
-  React.useEffect(() => {
-    startAutoSlide();
-    return clearAutoSlide;
+    return () => clearInterval(intervalRef.current);
   }, [slider]);
 
   return (
     <Box
       position="relative"
-      height={{ base: "400px", md: "600px" }}
+      height="400px"
       width="full"
       overflow="hidden"
     >
@@ -118,7 +95,7 @@ export default function HomeCard() {
         position="absolute"
         left={{ base: "10px", md: "40px" }}
         top="50%"
-        display={{base: 'none', md: 'block'}}
+        display={{ base: 'none', md: 'block' }}
         transform="translate(0%, -50%)"
         zIndex={2}
         onClick={() => slider?.slickPrev()}
@@ -130,7 +107,7 @@ export default function HomeCard() {
         aria-label="right-arrow"
         variant="ghost"
         position="absolute"
-        display={{base: 'none', md: 'block'}}
+        display={{ base: 'none', md: 'block' }}
         right={{ base: "10px", md: "40px" }}
         top="50%"
         transform="translate(0%, -50%)"
@@ -143,21 +120,18 @@ export default function HomeCard() {
       <Slider
         {...settings}
         ref={(c) => setSlider(c)}
-        beforeChange={(current, next) => {
-          setAnimationKey(Math.random());
-        }}
+        beforeChange={() => setAnimationKey(Math.random())}
       >
         {cards.map((card, index) => (
           <Box
             key={index}
-            height={{ base: "400px", md: "600px" }}
+            height="400px"
             position="relative"
             backgroundPosition="center"
             backgroundRepeat="no-repeat"
             backgroundSize="cover"
             backgroundImage={`url(${card.image})`}
           >
-            {/* Overlay */}
             <Box
               position="absolute"
               top="0"
@@ -169,8 +143,8 @@ export default function HomeCard() {
 
             <Container size="container.xl" height="100%" position="relative">
               <Stack
-                spacing={6}
-                w={{ base: "90%", md: "80%", lg: "200%" }}
+                spacing={4}
+                w={{ base: "100%", md: "80%", lg: "100%" }}
                 position="absolute"
                 top="50%"
                 left="50%"
@@ -178,7 +152,7 @@ export default function HomeCard() {
                 color="white"
                 textAlign="center"
               >
-                <Heading fontSize={{ base: "2xl", md: "4xl" }}>
+                <Heading fontSize={{ base: "xl", md: "5xl" }}>
                   {card.title.split("").map((letter, i) => (
                     <motion.span
                       key={`${index}-title-${i}`}
@@ -192,7 +166,7 @@ export default function HomeCard() {
                   ))}
                 </Heading>
 
-                <Text fontSize={{ base: "md", md: "4xl" }} fontWeight="700">
+                <Text fontSize={{ base: "md", md: "2xl" }} fontWeight="700">
                   {card.subtitle.split("").map((letter, i) => (
                     <motion.span
                       key={`${index}-subtitle-${i}`}

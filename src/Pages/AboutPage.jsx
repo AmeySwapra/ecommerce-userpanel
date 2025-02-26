@@ -1,17 +1,16 @@
 import React from 'react'
 import About from '../Components/About'
-import ProductSlider from '../Components/ProductSlider'
-import BlogSection from '../Components/BlogSection'
-import Header from '../components/common/Header'
-import Footer from '../components/common/Footer'
+import dryfruit from "../assets/images/dryfruits.jpg";
+import Header from '../Components/Common/Header';
+import Banner from '../Components/Common/Banner';
+import Footer from '../Components/Common/Footer';
 
 function AboutPage() {
   return (
     <>
        <Header/>
+       <Banner imageUrl={dryfruit} title={"ABOUT US"} isAboutUs={true} />
        <About/>
-       <ProductSlider/>
-       <BlogSection/>
        <Footer/>
     </>
   )
