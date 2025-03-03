@@ -27,6 +27,7 @@ import {
   DrawerCloseButton,
   DrawerBody,
   Badge,
+  useToast,
 } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { FaShoppingCart } from "react-icons/fa";
@@ -41,12 +42,95 @@ const Header = () => {
   } = useDisclosure();
   const [tabIndex, setTabIndex] = useState(0);
   const [cartCount, setCartCount] = useState(0);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [registerName, setRegisterName] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+  const toast = useToast();
+
+  
+  useEffect(() => {
+    const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (loggedInUser) {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   const handleTabChange = (index) => {
     setTabIndex(index);
   };
 
-  // Update the cart count based on the number of distinct items in localStorage
+  const handleLogin = () => {
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const user = users.find(
+      (u) => u.email === loginEmail && u.password === loginPassword
+    );
+
+    if (user) {
+      localStorage.setItem("loggedInUser", JSON.stringify(user));
+      setIsLoggedIn(true); 
+      toast({
+        title: "Login Successful",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right'
+      });
+      onClose();
+    } else {
+      toast({
+        title: "Invalid Email or Password",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: 'top-right'
+      });
+    }
+  };
+
+  const handleRegister = () => {
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const userExists = users.some((u) => u.email === registerEmail);
+
+    if (userExists) {
+      toast({
+        title: "User already exists",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } else {
+      const newUser = {
+        name: registerName,
+        email: registerEmail,
+        password: registerPassword,
+      };
+      users.push(newUser);
+      localStorage.setItem("users", JSON.stringify(users));
+      toast({
+        title: "Registration Successful",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      setTabIndex(0); 
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("loggedInUser"); 
+    setIsLoggedIn(false); 
+    toast({
+      title: "Logged Out Successfully",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+      position: 'top-right'
+    });
+  };
+
   useEffect(() => {
     const updateCartCount = () => {
       const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
@@ -74,8 +158,8 @@ const Header = () => {
           </Flex>
         </Link>
 
-        {/* Navigation Links - Hidden on Mobile */}
-        <Flex align="center" gap={6} display={{ base: "none", md: "flex" }}>
+        {/* Desktop Navigation Links (shown only on large screens) */}
+        <Flex align="center" gap={6} display={{ base: "none", lg: "flex" }}>
           <Link
             href="/"
             fontSize="18px"
@@ -121,15 +205,24 @@ const Header = () => {
           >
             Blog
           </Link>
-          <Link href="/contact" fontSize="18px" fontWeight="bold" color="gray.700" _hover={{ color: "green.500" }}>
+          <Link
+            href="/contact"
+            fontSize="18px"
+            fontWeight="bold"
+            color="gray.700"
+            _hover={{ color: "green.500" }}
+          >
             Contact
           </Link>
+        </Flex>
+
+        <Flex align="center" gap={6} display={{ base: "none", lg: "flex" }}>
           <Link href="/cart" position="relative" _hover={{ color: "green.500" }}>
             <FaShoppingCart size={24} />
             <Badge
               position="absolute"
-              top="-1"
-              right="-1"
+              top="-2"
+              right="-15"
               bg="red.500"
               color="white"
               borderRadius="full"
@@ -139,30 +232,39 @@ const Header = () => {
               {cartCount}
             </Badge>
           </Link>
+
+          {/* Conditionally render Login or Logout button */}
+          {isLoggedIn ? (
+            <Button
+              colorScheme="green"
+              variant="outline"
+              onClick={handleLogout}
+              _hover={{ bg: "green.50" }}
+            >
+              Logout
+            </Button>
+          ) : (
+            <Button
+              colorScheme="green"
+              variant="outline"
+              onClick={onOpen}
+              _hover={{ bg: "green.50" }}
+            >
+              Login
+            </Button>
+          )}
         </Flex>
 
-        {/* Mobile Menu Button */}
         <IconButton
-          display={{ base: "flex", md: "none" }}
+          display={{ base: "flex", lg: "none" }}
           icon={<HamburgerIcon />}
           onClick={onDrawerOpen}
           variant="outline"
           colorScheme="green"
         />
-
-        {/* Login Button */}
-        <Button
-          colorScheme="green"
-          variant="outline"
-          onClick={onOpen}
-          _hover={{ bg: "green.50" }}
-          display={{ base: "none", md: "block" }}
-        >
-          Login
-        </Button>
       </Flex>
 
-      {/* Mobile Drawer */}
+      {/* Mobile/Tablet Drawer */}
       <Drawer isOpen={isDrawerOpen} placement="right" onClose={onDrawerClose}>
         <DrawerOverlay />
         <DrawerContent>
@@ -182,7 +284,7 @@ const Header = () => {
                 Gallery
               </Link>
               <Link href="/blogs" onClick={onDrawerClose}>
-                Blog
+                Blogs
               </Link>
               <Link href="/contact" onClick={onDrawerClose}>
                 Contact
@@ -191,8 +293,8 @@ const Header = () => {
                 <FaShoppingCart size={24} />
                 <Badge
                   position="absolute"
-                  top="-2px"
-                  right="-8px"
+                  top="-8px"
+                  right="-15px"
                   bg="red.500"
                   color="white"
                   borderRadius="full"
@@ -202,9 +304,16 @@ const Header = () => {
                   {cartCount}
                 </Badge>
               </Link>
-              <Button colorScheme="green" w="full" onClick={onOpen}>
-                Login
-              </Button>
+              {/* Conditionally render Login or Logout button in the drawer */}
+              {isLoggedIn ? (
+                <Button colorScheme="green" w="full" onClick={handleLogout}>
+                  Logout
+                </Button>
+              ) : (
+                <Button colorScheme="green" w="full" onClick={onOpen}>
+                  Login
+                </Button>
+              )}
             </VStack>
           </DrawerBody>
         </DrawerContent>
@@ -229,9 +338,19 @@ const Header = () => {
                 {/* Login Form */}
                 <TabPanel>
                   <VStack spacing={4}>
-                    <Input placeholder="Email" type="email" />
-                    <Input placeholder="Password" type="password" />
-                    <Button colorScheme="green" w="full">
+                    <Input
+                      placeholder="Email"
+                      type="email"
+                      value={loginEmail}
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                    />
+                    <Input
+                      placeholder="Password"
+                      type="password"
+                      value={loginPassword}
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                    />
+                    <Button colorScheme="green" w="full" onClick={handleLogin}>
                       Login
                     </Button>
                   </VStack>
@@ -240,10 +359,28 @@ const Header = () => {
                 {/* Register Form */}
                 <TabPanel>
                   <VStack spacing={4}>
-                    <Input placeholder="Name" />
-                    <Input placeholder="Email" type="email" />
-                    <Input placeholder="Password" type="password" />
-                    <Button colorScheme="green" w="full">
+                    <Input
+                      placeholder="Name"
+                      value={registerName}
+                      onChange={(e) => setRegisterName(e.target.value)}
+                    />
+                    <Input
+                      placeholder="Email"
+                      type="email"
+                      value={registerEmail}
+                      onChange={(e) => setRegisterEmail(e.target.value)}
+                    />
+                    <Input
+                      placeholder="Password"
+                      type="password"
+                      value={registerPassword}
+                      onChange={(e) => setRegisterPassword(e.target.value)}
+                    />
+                    <Button
+                      colorScheme="green"
+                      w="full"
+                      onClick={handleRegister}
+                    >
                       Register
                     </Button>
                   </VStack>

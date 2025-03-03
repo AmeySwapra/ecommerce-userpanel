@@ -10,9 +10,9 @@ import {
 import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
 import Slider from "react-slick";
 import { motion } from "framer-motion";
-import slide1 from '../assets/images/dryfruits.jpg';
-import slide2 from '../assets/images/dry.jpg';
-import slide3 from '../assets/images/dryfruits.jpg';
+import slide1 from '../assets/slide/slide4.jpg';
+import slide2 from '../assets/slide/slide2.jpg';
+import slide3 from '../assets/slide/slide3.jpg';
 
 const settings = {
   dots: true,
@@ -138,7 +138,7 @@ export default function HomeCard() {
               left="0"
               width="100%"
               height="100%"
-              backgroundColor="rgba(0, 0, 0, 0.2)"
+             
             />
 
             <Container size="container.xl" height="100%" position="relative">
@@ -180,7 +180,7 @@ export default function HomeCard() {
                   ))}
                 </Text>
 
-                <Text fontSize={{ base: "sm", md: "lg" }} color={"yellow.400"}>
+                <Text fontSize={{ base: "sm", md: "lg" }} color={"white"}>
                   {card.text}
                 </Text>
               </Stack>
@@ -191,3 +191,5 @@ export default function HomeCard() {
     </Box>
   );
 }
+
+
